@@ -15,6 +15,13 @@ import (
 	"github.com/stretchr/objx"
 )
 
+// 現在アクティブなAvatarの実装
+var avatars Avatar = TryAvatars{
+	UseFileSystemAvatar,
+	UseAuthAvatar,
+	UseGravatar,
+}
+
 type templateHandler struct {
 	once     sync.Once
 	filename string
@@ -50,7 +57,7 @@ func main() {
 		google.New("199204261700-9phramb3j1g940pp4qsdipnu190bbr5e.apps.googleusercontent.com", "LUOpw-E_SkbVJhRENg019GSb", "http://localhost:8080/auth/callback/google"),
 	)
 
-	r := newRoom(UseGravatar)
+	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
@@ -69,6 +76,9 @@ func main() {
 	})
 	http.Handle("/upload", &templateHandler{filename: "upload.html"})
 	http.HandleFunc("/uploader", uploaderHandler)
+	http.Handle("/avatars/",
+		http.StripPrefix("/avatars/",
+			http.FileServer(http.Dir("./avatars"))))
 
 	// チャットルームを開始します
 	go r.run()
