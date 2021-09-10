@@ -15,6 +15,7 @@ var cmdChain = []*exec.Cmd{
 }
 
 func main() {
+
 	cmdChain[0].Stdin = os.Stdin
 	cmdChain[len(cmdChain)-1].Stdout = os.Stdout
 
@@ -23,14 +24,14 @@ func main() {
 		nextCmd := cmdChain[i+1]
 		stdout, err := thisCmd.StdoutPipe()
 		if err != nil {
-			log.Panicln(err)
+			log.Fatalln(err)
 		}
 		nextCmd.Stdin = stdout
 	}
 
 	for _, cmd := range cmdChain {
 		if err := cmd.Start(); err != nil {
-			log.Panicln(err)
+			log.Fatalln(err)
 		} else {
 			defer cmd.Process.Kill()
 		}
@@ -38,7 +39,8 @@ func main() {
 
 	for _, cmd := range cmdChain {
 		if err := cmd.Wait(); err != nil {
-			log.Panicln(err)
+			log.Fatalln(err)
 		}
 	}
+
 }
