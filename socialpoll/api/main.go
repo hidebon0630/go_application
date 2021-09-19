@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/stretchr/graceful"
 	"gopkg.in/mgo.v2"
 )
 
@@ -22,7 +23,8 @@ func main() {
 	}
 	defer db.Close()
 	mux := http.NewServeMux()
-	mux.HandleFunc("/polls/", withCORS(withVars(withData(db, withAPIKey(handlePolls)))))
+	mux.HandleFunc("/polls/", withCORS(withVars(withData(db,
+		withAPIKey(handlePolls)))))
 	log.Println("Webサーバーを開始します:", *addr)
 	graceful.Run(*addr, 1*time.Second, mux)
 	log.Println("停止します...")
