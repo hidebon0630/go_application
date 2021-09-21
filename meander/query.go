@@ -112,7 +112,7 @@ func (q *Query) Run() []interface{} {
 			places[i] = response.Results[randI]
 			l.Unlock()
 		}(r, i)
-		w.Wait() // すべてのリクエストの完了を待ちます
-		return places
 	}
+	w.Wait() // すべてのリクエストの完了を待ちます
+	return places
 }
