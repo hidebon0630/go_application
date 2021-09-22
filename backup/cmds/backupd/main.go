@@ -4,8 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"go_application/backup"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/matryer/filedb"
 )
@@ -62,5 +67,21 @@ func main() {
 	if len(m.Paths) < 1 {
 		fatalErr = errors.New("パスがありません。backupツールを使って追加してください")
 		return
+	}
+
+	check(m.col)
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+LOOP:
+	for {
+		select {
+		case <-time.After(time.Duration(*interval) * time.Second):
+			check(m, col)
+		case <-signalChan:
+			// 終了
+			fmt.Println()
+			log.Printf("終了します...")
+			break LOOP
+		}
 	}
 }
